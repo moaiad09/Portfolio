@@ -11,13 +11,18 @@ const SECTIONS = [
 ];
 const GlobalStyles = () => (
   <style>{`
-    @keyframes retroGradient {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    @keyframes marqueeMove {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { text-shadow: 0 0 10px #fff, 0 0 20px #ff0, 0 0 30px #0ff; }
+      50% { text-shadow: 0 0 20px #ff0, 0 0 30px #0ff, 0 0 40px #f0f; }
     }
   `}</style>
 );
+
 
 const QUOTES = [
   "Great interfaces are crafted, not assembled.",
@@ -172,15 +177,14 @@ function AlienGreeter() {
         </div>
         <div style={styles.mouth} />
       </motion.div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 1.5 }}
-        style={styles.alienText}
-      >
-        Hello, welcome to my Galaxy!
-      </motion.div>
+
+      <div style={{ overflow: "hidden", width: "100%", marginTop: 10 }}>
+        <div style={styles.marqueeText}>
+          Hello, welcome to my Galaxy! 🚀✨🌌
+        </div>
+      </div>
     </div>
+
   );
 }
 
@@ -286,6 +290,17 @@ export default function App() {
 
 /* ================= STYLES ================= */
 const styles = {
+  marqueeText: {
+    fontFamily: "'Bungee', cursive",        // خط Retro ممتع
+    fontSize: "2rem",                        // أكبر قليلاً
+    fontWeight: "bold",
+    whiteSpace: "nowrap",
+    display: "inline-block",
+    animation: "marqueeMove 15s linear infinite, glowPulse 3s ease-in-out infinite",
+    background: "linear-gradient(90deg, #ff004c, #ff9f00, #ffee00, #00ff9d, #00c3ff)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+  },
   retroText: {
     fontFamily: "'Bungee', cursive",
     fontSize: "1.6rem",
