@@ -22,7 +22,48 @@ const GlobalStyles = () => (
     }
   `}</style>
 );
+const WelcomeLoopStyles = () => (
+  <style>{`
+    @keyframes welcomeLoop {
+      0% {
+        opacity: 0;
+        transform: translateY(8px) scale(0.95);
+      }
+      20% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      60% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      80% {
+        opacity: 0;
+        transform: translateY(-6px) scale(0.97);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-6px) scale(0.97);
+      }
+    }
 
+    @keyframes alienGlow {
+      0%, 100% {
+        box-shadow: 0 0 25px rgba(0,255,255,0.6),
+                    0 0 50px rgba(0,255,255,0.3);
+      }
+      50% {
+        box-shadow: 0 0 40px rgba(255,0,255,0.8),
+                    0 0 70px rgba(0,255,255,0.6);
+      }
+    }
+
+    @keyframes eyeBlink {
+      0%, 92%, 100% { transform: scaleY(1); }
+      95% { transform: scaleY(0.1); }
+    }
+  `}</style>
+);
 
 const QUOTES = [
   "Great interfaces are crafted, not assembled.",
@@ -178,13 +219,10 @@ function AlienGreeter() {
         <div style={styles.mouth} />
       </motion.div>
 
-      <div style={{ overflow: "hidden", width: "100%", marginTop: 10 }}>
-        <div style={styles.marqueeText}>
-          Hello, welcome to my Galaxy! 🚀✨🌌
-        </div>
+      <div style={styles.alienText}>
+        Hello, welcome to my universe!
       </div>
     </div>
-
   );
 }
 
@@ -260,6 +298,7 @@ export default function App() {
   const [active, setActive] = useState("");
   return (
     <div style={styles.page}>
+      <WelcomeLoopStyles />
       <GlobalStyles />
       <Stars />
       <Meteors />
@@ -383,12 +422,13 @@ const styles = {
   },
   alienWrap: {
     position: "fixed",
-    top: 40,
-    left: 40,
+    top: 20,
+    left: 20,
     zIndex: 10,
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
+    alignItems: "flex-start",
+    pointerEvents: "none", // يمنع أي تداخل
   },
   alien: {
     width: 100,
@@ -399,12 +439,32 @@ const styles = {
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    boxShadow: "0 0 40px rgba(0,255,255,.7)",
+    animation: "alienGlow 4s ease-in-out infinite",
   },
+
   eyeWrap: { display: "flex", gap: 15, marginBottom: 10 },
   eye: { width: 14, height: 14, borderRadius: "50%", background: "#000" },
   mouth: { width: 30, height: 8, borderBottom: "3px solid #000", borderRadius: "0 0 30px 30px" },
-  alienText: { marginTop: 8, fontSize: "1rem", textShadow: "0 0 15px rgba(0,255,255,.9)" },
+  alienText: {
+    marginTop: 10,
+    fontSize: "1.4rem",
+    fontFamily: "'Bungee', cursive",
+    display: "inline-block",
+    background: "linear-gradient(90deg, #ff4ecd, #ffdd00, #00ffd5)",
+    backgroundSize: "200% 200%",
+    WebkitBackgroundClip: "text",
+    backgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    color: "transparent",
+
+    textShadow: "0 0 15px rgba(255,255,255,0.7)",
+    animation: "welcomeLoop 10s ease-in-out infinite",
+
+    whiteSpace: "nowrap",
+  },
+
+
+
   carouselWrap: {
     position: "fixed",
     bottom: 20,
