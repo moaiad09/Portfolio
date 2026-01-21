@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 /* ================= DATA ================= */
 const SECTIONS = [
-  { id: "main", title: "Main", color: "#ffffff", icon: "⬤", orbit: 0, size: 30 },
-  { id: "about", title: "About", color: "#ff6f61", icon: "◔", orbit: 120, size: 25 },
-  { id: "skills", title: "Skills", color: "#6fefff", icon: "◑", orbit: 180, size: 30 },
-  { id: "projects", title: "Projects", color: "#ffdd6f", icon: "◕", orbit: 240, size: 35 },
-  { id: "contact", title: "Contact", color: "#ff6fcf", icon: "⬢", orbit: 300, size: 40 },
+  { id: "main", title: "Main", color: "#ffffff", icon: "⬤", orbit: 0, size: 40 },
+  { id: "about", title: "About", color: "#ff6f61", icon: "◔", orbit: 140, size: 34, speed: 60 },
+  { id: "skills", title: "Skills", color: "#6fefff", icon: "◑", orbit: 200, size: 38, speed: 90 },
+  { id: "projects", title: "Projects", color: "#ffdd6f", icon: "◕", orbit: 270, size: 44, speed: 130 },
+  { id: "contact", title: "Contact", color: "#ff6fcf", icon: "⬢", orbit: 340, size: 48, speed: 180 },
 ];
+
 const GlobalStyles = () => (
   <style>{`
     @keyframes marqueeMove {
@@ -22,6 +23,32 @@ const GlobalStyles = () => (
     }
   `}</style>
 );
+function StarMascot({ visible, color }) {
+  return (
+    <motion.div
+      initial={{ y: -150, scale: 0.2, opacity: 0 }}
+      animate={{
+        y: visible ? 20 : -150,
+        scale: visible ? 1 : 0.2,
+        opacity: visible ? 1 : 0,
+      }}
+      transition={{ duration: 0.8, ease: "easeInOut" }}
+      style={{
+        position: "fixed",
+        top: 0,
+        right: 120,
+        fontSize: "3rem",
+        color: color, // ✅ استخدام اللون المرسل
+        zIndex: 999,
+        pointerEvents: "none",
+        textShadow: `0 0 15px ${color}, 0 0 30px ${color}`,
+      }}
+    >
+      ⭐
+    </motion.div>
+  );
+}
+
 const WelcomeLoopStyles = () => (
   <style>{`
     @keyframes welcomeLoop {
@@ -142,16 +169,20 @@ function Meteors() {
   );
 }
 
-/* ================= SUN & PLANETS ================= */
 function SolarSystem({ active }) {
   return (
     <div style={styles.solarSystem}>
       <div style={styles.sun} />
-      {SECTIONS.filter((s) => s.orbit).map((s) => (
+
+      {SECTIONS.filter(s => s.orbit).map((s) => (
         <motion.div
           key={s.id}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 150, repeat: Infinity, ease: "linear" }}
+          animate={{ rotate: 360 }}            // يدور مدار الكوكب
+          transition={{
+            duration: s.speed,
+            repeat: Infinity,
+            ease: "linear",
+          }}
           style={{
             ...styles.orbit,
             width: s.orbit * 2,
@@ -161,42 +192,50 @@ function SolarSystem({ active }) {
           <div
             style={{
               ...styles.planet,
-              width: s.size * (active === s.id ? 1.6 : 1),
-              height: s.size * (active === s.id ? 1.6 : 1),
+              width: s.size,
+              height: s.size,
               background: `radial-gradient(circle, #fff, ${s.color})`,
-              boxShadow: active === s.id ? `0 0 35px ${s.color}` : `0 0 10px rgba(255,255,255,0.3)`,
-              transition: "all .4s ease",
+              boxShadow: `0 0 25px ${s.color}`,
+              top: -s.size / 2,       // يضع الكوكب على مدار صحيح
+              left: "50%",
+              transform: "translateX(-50%)",
+              position: "absolute",
+              borderRadius: "50%",
             }}
           />
         </motion.div>
       ))}
     </div>
-  );
+  )
 }
-
 /* ================= MENU ================= */
-function Menu({ active, setActive }) {
-  const go = (id) =>
+function Menu({ active, setActive, setShowStar, setStarColor }) {
+  const go = (id, color) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    setShowStar(false);
+    setStarColor(color);
+  };
 
   return (
-    <nav style={styles.menu}>
+    <nav
+      style={styles.menu}
+      onMouseEnter={() => setShowStar(true)}
+      onMouseLeave={() => setShowStar(false)}
+    >
       {SECTIONS.map((s) => (
         <motion.div
           key={s.id}
-          whileHover={{ scale: 1.1, boxShadow: `0 0 25px ${s.color}` }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => go(s.id)}
-          onMouseEnter={() => setActive(s.id)}
-          onMouseLeave={() => setActive("")}
-          style={{
-            ...styles.menuItem,
-            borderColor: active === s.id ? s.color : "rgba(255,255,255,0.25)",
-            boxShadow: active === s.id ? `0 0 25px ${s.color}` : "0 0 10px rgba(120,180,255,0.3)",
+          whileHover={{ scale: 1.1 }}
+          onMouseEnter={() => {
+            setActive(s.id);
+            setStarColor(s.color);   // ✅ هنا نغير لون النجمة عند hover
+            setShowStar(true);       // ✅ ونجعلها تظهر
           }}
+          onMouseLeave={() => setActive("")}
+          onClick={() => go(s.id, s.color)}
+          style={styles.menuItem}
         >
-          <span style={styles.menuIcon}>{s.icon}</span>
-          {s.title}
+          {s.icon} {s.title}
         </motion.div>
       ))}
     </nav>
@@ -205,8 +244,41 @@ function Menu({ active, setActive }) {
 
 /* ================= WELCOME ALIEN ================= */
 function AlienGreeter() {
+  const messages = [
+    "Hello, welcome to my universe!",
+    "I am E.Moaiad Alimam"
+  ];
+
+  const [msgIndex, setMsgIndex] = useState(0);
+  const [show, setShow] = useState(true);
+
+  const fadeDuration = 1000;   // 1 ثانية
+  const displayDuration = 4000; // 4 ثوانٍ
+
+  useEffect(() => {
+    let timeout;
+    const cycleMessages = () => {
+      // بعد مدة العرض، نبدأ الاختفاء
+      timeout = setTimeout(() => {
+        setShow(false); // fade out
+
+        // بعد انتهاء fade-out، نغير الرسالة ونظهرها
+        timeout = setTimeout(() => {
+          setMsgIndex((prev) => (prev + 1) % messages.length);
+          setShow(true); // fade in
+          cycleMessages(); // إعادة التكرار
+        }, fadeDuration);
+      }, displayDuration);
+    };
+
+    cycleMessages();
+
+    return () => clearTimeout(timeout);
+  }, []);
+
   return (
     <div style={styles.alienWrap}>
+      {/* الكائن الفضائي */}
       <motion.div
         animate={{ y: [0, -5, 0] }}
         transition={{ duration: 4, repeat: Infinity }}
@@ -219,13 +291,26 @@ function AlienGreeter() {
         <div style={styles.mouth} />
       </motion.div>
 
-      <div style={styles.alienText}>
-        Hello, welcome to my universe!
+      {/* الرسائل */}
+      <div style={{ width: 250, textAlign: "center", position: "relative", height: 30 }}>
+        <AnimatePresence mode="wait">
+          {show && (
+            <motion.div
+              key={msgIndex} // كل رسالة لها مفتاح فريد
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: fadeDuration / 1000 }}
+              style={styles.alienText} // ✅ الحفاظ على التدرج اللوني والحيوية
+            >
+              {messages[msgIndex]}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
 }
-
 /* ================= CAROUSEL ================= */
 function ProjectCarousel() {
   const items = [
@@ -296,6 +381,9 @@ function Quote() {
 /* ================= APP ================= */
 export default function App() {
   const [active, setActive] = useState("");
+  const [showStar, setShowStar] = useState(false);
+  const [starColor, setStarColor] = useState("#ffeb3b");
+
   return (
     <div style={styles.page}>
       <WelcomeLoopStyles />
@@ -303,26 +391,29 @@ export default function App() {
       <Stars />
       <Meteors />
       <AlienGreeter />
-      <Menu active={active} setActive={setActive} />
+      <Menu active={active} setActive={setActive} setShowStar={setShowStar} setStarColor={setStarColor} />
+      <StarMascot visible={showStar} color={starColor} />
       <SolarSystem active={active} />
       <Quote />
       <ProjectCarousel />
-      <section id="about" style={styles.section}>
-        <h2>About Me</h2>
-        <p>Front-End Developer creating immersive, performant, and visually rich user interfaces.</p>
-      </section>
-      <section id="skills" style={styles.section}>
-        <h2>Skills</h2>
-        <p>React, Framer Motion, 3D Illusions, CSS Animations, UI/UX Design</p>
-      </section>
-      <section id="projects" style={styles.section}>
-        <h2>Projects</h2>
-        <p>Portfolio websites, dashboards, interactive web games, and more.</p>
-      </section>
-      <section id="contact" style={styles.section}>
-        <h2>Contact</h2>
-        <p>Email: example@domain.com</p>
-      </section>
+      {SECTIONS.filter(s => s.id !== "main").map((s) => (
+        <section
+          id={s.id}
+          key={s.id}
+          style={styles.section}
+        >
+          {/* نضع margin-top على العنوان فقط لتجاوز Solar System */}
+          <h2 style={{ color: s.color, marginTop: "350px" }}>{s.title}</h2>
+          <p style={{ marginTop: "1rem" }}>
+            {s.id === "about" && "Front-End Developer creating immersive, performant, and visually rich user interfaces."}
+            {s.id === "skills" && "React, Framer Motion, 3D Illusions, CSS Animations, UI/UX Design"}
+            {s.id === "projects" && "Portfolio websites, dashboards, interactive web interfaces, and more."}
+            {s.id === "contact" && "Email: moaiadwork09@gmail.com"}
+          </p>
+        </section>
+      ))}
+
+
     </div>
   );
 }
@@ -339,6 +430,29 @@ const styles = {
     background: "linear-gradient(90deg, #ff004c, #ff9f00, #ffee00, #00ff9d, #00c3ff)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
+  },
+  star: {
+    position: "fixed",
+    top: 20,
+    right: 130,
+    fontSize: "3.5rem",
+    color: "var(--starColor)",
+    zIndex: 30,
+    pointerEvents: "none",
+    transformStyle: "preserve-3d",
+    textShadow: `
+      0 0 20px var(--starColor),
+      0 0 40px var(--starColor)
+    `,
+  },
+  starGlow: {
+    position: "absolute",
+    inset: -20,
+    background:
+      "radial-gradient(circle, var(--starColor), transparent 70%)",
+    filter: "blur(25px)",
+    opacity: 0.8,
+    zIndex: -1,
   },
   retroText: {
     fontFamily: "'Bungee', cursive",
@@ -371,23 +485,27 @@ const styles = {
     zIndex: 2,
     pointerEvents: "none",
   },
+
   sun: {
     position: "absolute",
     top: "50%",
     left: "50%",
-    width: 120,
-    height: 120,
-    borderRadius: "50%",
+    width: 180,
+    height: 180,
     transform: "translate(-50%,-50%)",
-    background: "radial-gradient(circle,#fff3a0,#ffb300)",
-    boxShadow: "0 0 150px rgba(255,200,0,.9)",
+    borderRadius: "50%",
+    background: "radial-gradient(circle, #fff3a0, #ffb300)",
+    boxShadow: "0 0 200px rgba(255,200,0,0.6)",
+    opacity: 0.85,
   },
+
   orbit: {
     position: "absolute",
     top: "50%",
     left: "50%",
     transform: "translate(-50%,-50%)",
     borderRadius: "50%",
+    pointerEvents: "none",
   },
   planet: {
     position: "absolute",
@@ -449,22 +567,16 @@ const styles = {
     marginTop: 10,
     fontSize: "1.4rem",
     fontFamily: "'Bungee', cursive",
-    display: "inline-block",
     background: "linear-gradient(90deg, #ff4ecd, #ffdd00, #00ffd5)",
     backgroundSize: "200% 200%",
     WebkitBackgroundClip: "text",
     backgroundClip: "text",
     WebkitTextFillColor: "transparent",
     color: "transparent",
-
     textShadow: "0 0 15px rgba(255,255,255,0.7)",
     animation: "welcomeLoop 10s ease-in-out infinite",
-
-    whiteSpace: "nowrap",
-  },
-
-
-
+  }
+  ,
   carouselWrap: {
     position: "fixed",
     bottom: 20,
@@ -497,7 +609,13 @@ const styles = {
   },
   section: {
     minHeight: "100vh",
-    padding: "30vh 15%",
-    zIndex: 3,
-  },
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    alignItems: "flex-start", // نص محاذي لليسار
+    position: "relative",
+    zIndex: 5,
+    padding: "0 15%", // مسافة من الجانبين
+  }
+
 };
