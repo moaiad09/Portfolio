@@ -9,6 +9,15 @@ const SECTIONS = [
   { id: "projects", title: "Projects", color: "#ffdd6f", icon: "◕", orbit: 240, size: 35 },
   { id: "contact", title: "Contact", color: "#ff6fcf", icon: "⬢", orbit: 300, size: 40 },
 ];
+const GlobalStyles = () => (
+  <style>{`
+    @keyframes retroGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+  `}</style>
+);
 
 const QUOTES = [
   "Great interfaces are crafted, not assembled.",
@@ -169,7 +178,7 @@ function AlienGreeter() {
         transition={{ delay: 1, duration: 1.5 }}
         style={styles.alienText}
       >
-        Hello, welcome to my universe!
+        Hello, welcome to my Galaxy!
       </motion.div>
     </div>
   );
@@ -204,18 +213,50 @@ function ProjectCarousel() {
 /* ================= QUOTE ================= */
 function Quote() {
   const [i, setI] = useState(0);
+
   useEffect(() => {
-    const interval = setInterval(() => setI((v) => (v + 1) % QUOTES.length), 4000);
+    const interval = setInterval(
+      () => setI((v) => (v + 1) % QUOTES.length),
+      4000
+    );
     return () => clearInterval(interval);
   }, []);
-  return <div style={styles.quote}>{QUOTES[i]}</div>;
+
+  return (
+    <div style={styles.quote}>
+      {QUOTES[i].split("").map((char, idx) => (
+        <motion.span
+          key={idx}
+          style={{ ...styles.retroText, display: "inline-block" }}
+          animate={{
+            y: [0, -6, 0],                 // اهتزاز للأعلى
+            textShadow: [
+              "0 0 6px rgba(255,255,255,.4)",
+              "0 0 16px rgba(255,255,255,.9)",
+              "0 0 6px rgba(255,255,255,.4)",
+            ],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: idx * 0.05,             // تدريجي بين الأحرف
+          }}
+        >
+          {char === " " ? "\u00A0" : char}
+        </motion.span>
+      ))}
+    </div>
+  );
 }
+
 
 /* ================= APP ================= */
 export default function App() {
   const [active, setActive] = useState("");
   return (
     <div style={styles.page}>
+      <GlobalStyles />
       <Stars />
       <Meteors />
       <AlienGreeter />
@@ -245,13 +286,26 @@ export default function App() {
 
 /* ================= STYLES ================= */
 const styles = {
+  retroText: {
+    fontFamily: "'Bungee', cursive",
+    fontSize: "1.6rem",
+    background: "linear-gradient(90deg, #ff004c, #ff9f00, #ffee00, #00ff9d, #00c3ff, #ff004c)",
+    backgroundSize: "400% 400%",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    animation: "retroGradient 6s ease infinite",
+    textShadow: `
+      3px 3px 0 #000,
+      6px 6px 0 rgba(0,0,0,0.3)
+    `,
+  },
   page: {
     minHeight: "100vh",
     background: "radial-gradient(circle at 50% 50%, #ffb30020, #00002f 80%)",
     color: "#fff",
     overflowX: "hidden",
     overflowY: "auto",
-    fontFamily: "Arial, sans-serif",
+    fontFamily: "'Bungee', cursive",
   },
   solarSystem: {
     position: "fixed",
@@ -358,7 +412,7 @@ const styles = {
   },
   quote: {
     position: "fixed",
-    bottom: 120,
+    top: 40,
     left: "50%",
     transform: "translateX(-50%)",
     fontSize: "1.2rem",
