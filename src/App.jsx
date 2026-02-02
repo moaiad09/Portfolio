@@ -14,21 +14,15 @@ const SECTIONS = [
 
 const GlobalStyles = () => (
   <style>{`
-    @keyframes marqueeMove {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Bungee&display=swap');
 
-    @keyframes glowPulse {
-      0%, 100% { text-shadow: 0 0 10px #fff, 0 0 20px #ff0, 0 0 30px #0ff; }
-      50% { text-shadow: 0 0 20px #ff0, 0 0 30px #0ff, 0 0 40px #f0f; }
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #000; overflow-x: hidden; }
 
     @keyframes borderRotate {
       0% { --angle: 0deg; }
       100% { --angle: 360deg; }
     }
-
     @property --angle {
       syntax: '<angle>';
       initial-value: 0deg;
@@ -41,20 +35,18 @@ const GlobalStyles = () => (
       border-radius: 20px;
       z-index: 1;
     }
-
     .neon-border-box::before {
       content: "";
       position: absolute;
-      inset: -5px; 
+      inset: -3px; 
       z-index: -1;
       background: conic-gradient(from var(--angle), #ff0055, #00ddff, #ffdd00, #ff0055);
       border-radius: 22px;
       animation: borderRotate 4s linear infinite;
     }
-    
     .neon-border-box::after {
       content: "";
-      position: "absolute";
+      position: absolute;
       inset: 0;
       background: rgba(15, 23, 42, 0.95); 
       border-radius: 18px;
@@ -65,16 +57,12 @@ const GlobalStyles = () => (
       0%, 100% { transform: translateY(0px); }
       50% { transform: translateY(-10px); }
     }
-
-    .floating-card {
-      animation: float 6s ease-in-out infinite;
-    }
+    .floating-card { animation: float 6s ease-in-out infinite; }
 
     .glitch-text:hover {
       animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
       color: #ff0055;
     }
-
     @keyframes glitch {
       0% { transform: translate(0); }
       20% { transform: translate(-2px, 2px); }
@@ -84,12 +72,8 @@ const GlobalStyles = () => (
       100% { transform: translate(0); }
     }
 
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0b0b15;
-    }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0b0b15; }
     ::-webkit-scrollbar-thumb {
       background: linear-gradient(to bottom, #ff0055, #00ddff);
       border-radius: 4px;
@@ -106,7 +90,6 @@ const GlobalStyles = () => (
       flex: 1;
       min-width: 200px;
       transition: 0.3s;
-      box-sizing: border-box;
     }
     .neon-input:focus {
       border-color: #00ddff !important;
@@ -116,43 +99,8 @@ const GlobalStyles = () => (
   `}</style>
 );
 
-/* ================= MASCOT ================= */
-function StarMascot({ visible, color }) {
-  return (
-    <motion.div
-      initial={{ y: -150, scale: 0.2, opacity: 0 }}
-      animate={{
-        y: visible ? 20 : -150,
-        scale: visible ? 1 : 0.2,
-        opacity: visible ? 1 : 0,
-      }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      style={{
-        position: "fixed",
-        top: 0,
-        right: 120,
-        fontSize: "3.5rem",
-        color: color,
-        textShadow: `0 0 20px ${color}, 0 0 40px ${color}, 0 0 60px ${color}, 0 0 80px ${color}`,
-        zIndex: 999, // High z-index but below button
-        pointerEvents: "none",
-        transition: "color 0.2s ease, text-shadow 0.2s ease" // Fast transition
-      }}
-    >
-      ⭐
-    </motion.div>
-  );
-}
-
 const WelcomeLoopStyles = () => (
   <style>{`
-    @keyframes welcomeLoop {
-      0% { opacity: 0; transform: translateY(8px) scale(0.95); }
-      20% { opacity: 1; transform: translateY(0) scale(1); }
-      60% { opacity: 1; transform: translateY(0) scale(1); }
-      80% { opacity: 0; transform: translateY(-6px) scale(0.97); }
-      100% { opacity: 0; transform: translateY(-6px) scale(0.97); }
-    }
     @keyframes alienGlow {
       0%, 100% { box-shadow: 0 0 25px rgba(0,255,255,0.6), 0 0 50px rgba(0,255,255,0.3); }
       50% { box-shadow: 0 0 40px rgba(255,0,255,0.8), 0 0 70px rgba(0,255,255,0.6); }
@@ -167,16 +115,15 @@ const QUOTES = [
   "Clean code reflects clear thinking.",
 ];
 
-/* ================= STARS ================= */
 function Stars({ count = 15 }) {
   const [stars, setStars] = useState([]);
-
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     const arr = [];
     for (let i = 0; i < count; i++) {
       arr.push({
-        x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
-        y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
         size: Math.random() * 3 + 1,
         speed: Math.random() * 0.5 + 0.2,
         glow: Math.random() * 0.7 + 0.3,
@@ -186,7 +133,7 @@ function Stars({ count = 15 }) {
   }, [count]);
 
   return (
-    <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", zIndex: 0 }}>
+    <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none" }}>
       {stars.map((s, i) => (
         <motion.div
           key={i}
@@ -206,15 +153,18 @@ function Stars({ count = 15 }) {
   );
 }
 
-/* ================= METEOR ================= */
 function Meteors() {
-  const winWidth = typeof window !== 'undefined' ? window.innerWidth : 1000;
-  const winHeight = typeof window !== 'undefined' ? window.innerHeight : 1000;
+  const [dimensions, setDimensions] = useState({ w: 1000, h: 1000 });
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setDimensions({ w: window.innerWidth, h: window.innerHeight });
+    }
+  }, []);
 
   const meteors = [
     { x: 0, y: 0, size: 10, delay: 0 },
-    { x: winWidth, y: 0, size: 8, delay: 2 },
-    { x: 0, y: winHeight / 2, size: 9, delay: 4 },
+    { x: dimensions.w, y: 0, size: 8, delay: 2 },
+    { x: 0, y: dimensions.h / 2, size: 9, delay: 4 },
   ];
 
   return (
@@ -223,7 +173,7 @@ function Meteors() {
         <motion.div
           key={i}
           initial={{ x: m.x, y: m.y, opacity: 1 }}
-          animate={{ x: m.x > 0 ? -winWidth : winWidth, y: m.y > 0 ? winHeight : -winHeight, opacity: 0 }}
+          animate={{ x: m.x > 0 ? -dimensions.w : dimensions.w, y: m.y > 0 ? dimensions.h : -dimensions.h, opacity: 0 }}
           transition={{ duration: 6 + i * 2, repeat: Infinity, repeatType: "loop", delay: m.delay, ease: "linear" }}
           style={{
             position: "fixed",
@@ -233,6 +183,7 @@ function Meteors() {
             background: "rgba(255,50,50,0.8)",
             boxShadow: `0 0 ${m.size * 3}px rgba(255,50,50,0.8)`,
             zIndex: 1,
+            pointerEvents: "none"
           }}
         />
       ))}
@@ -240,7 +191,6 @@ function Meteors() {
   );
 }
 
-/* ================= SOLAR SYSTEM ================= */
 function SolarSystem() {
   return (
     <div style={styles.solarSystem}>
@@ -251,11 +201,7 @@ function SolarSystem() {
           animate={{ rotate: 360 }}
           initial={{ rotate: s.initialAngle }}
           transition={{ duration: s.speed, repeat: Infinity, ease: "linear" }}
-          style={{
-            ...styles.orbit,
-            width: s.orbit * 2,
-            height: s.orbit * 2,
-          }}
+          style={{ ...styles.orbit, width: s.orbit * 2, height: s.orbit * 2 }}
         >
           <div
             style={{
@@ -277,122 +223,124 @@ function SolarSystem() {
   );
 }
 
-/* ================= MENU ================= */
-function Menu({ active, setActive, setShowStar, setStarColor }) {
-  const [hoveredId, setHoveredId] = useState(null);
+function StarMascot({ visible, color }) {
+  return (
+    <motion.div
+      initial={{ y: -150, scale: 0.2, opacity: 0 }}
+      animate={{
+        y: visible ? 20 : -150,
+        scale: visible ? 1 : 0.2,
+        opacity: visible ? 1 : 0,
+      }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      style={{
+        position: "fixed",
+        top: 10,
+        right: 120,
+        width: 60,
+        height: 60,
+        zIndex: 9999,
+        pointerEvents: "none",
+        filter: `drop-shadow(0 0 10px ${color}) drop-shadow(0 0 25px ${color})`
+      }}
+    >
+      <svg viewBox="0 0 24 24" fill={color}>
+        <path d="M12 2l2.9 6.6L22 9.3l-5 4.9L18.2 22 12 18.4 5.8 22 7 14.2 2 9.3l7.1-0.7L12 2z" />
+      </svg>
+    </motion.div>
+  );
+}
 
-  const go = (id, color) => {
-    if (typeof document !== 'undefined') {
-      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    }
-    setShowStar(false);
-    setStarColor(color);
+function Menu({ active, setActive, setStarColor, setShowStar }) {
+  const go = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
-    <nav
-      style={styles.menu}
-      onMouseEnter={() => setShowStar(true)}
-      onMouseLeave={() => {
-        setShowStar(false);
-        setHoveredId(null);
-        // Revert star color to default white when mouse leaves menu
-        setStarColor(SECTIONS[0].color);
-      }}
-    >
-      {SECTIONS.map((s) => (
-        <motion.div
-          key={s.id}
-          whileHover={{ scale: 1.1 }}
-          onMouseEnter={() => {
-            setHoveredId(s.id);
-            setStarColor(s.color);
-            setShowStar(true);
-          }}
-          onClick={() => go(s.id, s.color)}
-          style={{
-            ...styles.menuItem,
-            // Highlight Logic: Active OR Hovered
-            color: (hoveredId === s.id) ? s.color : (active === s.id ? s.color : "#fff"),
-            borderColor: (active === s.id || hoveredId === s.id) ? s.color : "transparent",
-            borderWidth: (active === s.id || hoveredId === s.id) ? "3px" : "2px",
-            boxShadow: (active === s.id || hoveredId === s.id) ? `0 0 20px ${s.color}99` : "0 4px 15px rgba(0,0,0,0.5)",
-            transition: "all 0.3s ease",
-            background: (active === s.id || hoveredId === s.id) ? `${s.color}33` : "rgba(20,20,35,.85)"
-          }}
-        >
-          {s.icon} {s.title}
-        </motion.div>
-      ))}
+    <nav style={styles.menu}>
+      {SECTIONS.map((s) => {
+        const isActive = active === s.id;
+
+        return (
+          <motion.div
+            key={s.id}
+            onClick={() => go(s.id)}
+            onMouseEnter={() => {
+              setStarColor(s.color);
+              setShowStar(true);
+            }}
+            onMouseLeave={() => setShowStar(false)}
+            whileHover={{ scale: 1.08 }}
+            style={{
+              ...styles.menuItem,
+              color: isActive ? s.color : "#fff",
+              border: `2px solid ${isActive ? s.color : "transparent"}`,
+              background: isActive
+                ? `${s.color}33`
+                : "rgba(20,20,35,.85)",
+              boxShadow: isActive
+                ? `0 0 25px ${s.color}`
+                : "0 4px 15px rgba(0,0,0,0.5)",
+              transition: "all 0.25s ease"
+            }}
+          >
+            {s.icon} {s.title}
+          </motion.div>
+        );
+      })}
     </nav>
   );
 }
 
-/* ================= ROCKET BUTTON ================= */
 function BackToTopRocket({ activeColor }) {
-  const [isVisible, setIsVisible] = useState(false);
-  const [isLaunched, setIsLaunched] = useState(false);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const toggleVisibility = () => {
-      // FIX: Threshold set to 0 to show immediately on any scroll
-      if (window.scrollY > 0) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
+    const onScroll = () => {
+      setVisible(window.scrollY > 250);
     };
-    window.addEventListener("scroll", toggleVisibility, { passive: true });
-    return () => window.removeEventListener("scroll", toggleVisibility);
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const scrollToTop = () => {
-    setIsLaunched(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    setTimeout(() => setIsLaunched(false), 800);
-  };
+  if (!visible) return null;
 
   return (
-    <motion.button
-      initial={{ scale: 0, rotate: 45 }}
-      animate={{
-        scale: isVisible && !isLaunched ? 1 : 0,
-        y: isLaunched ? -1000 : 0, // Fly up and away
-        rotate: isLaunched ? -45 : (isVisible ? 0 : 45),
-        opacity: isLaunched ? 0 : 1
-      }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      whileHover={{ y: -10, rotate: 0, scale: 1.1 }}
+    <motion.div
+      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      whileHover={{ y: -6, scale: 1.08 }}
       whileTap={{ scale: 0.9 }}
-      onClick={scrollToTop}
+      transition={{ duration: 0.3 }}
       style={{
         position: "fixed",
-        bottom: 100,
+        bottom: 30,
         right: 30,
-        width: 65,
-        height: 65,
+        width: 68,
+        height: 68,
         borderRadius: "50%",
-        // 3D Appearance
-        background: "linear-gradient(135deg, #ff9f00, #ff0044)",
-        border: "3px solid rgba(255,255,255,0.8)",
-        boxShadow: `0 10px 25px rgba(0,0,0,0.5), inset 0 0 15px rgba(255,255,255,0.3), 0 0 15px ${activeColor}`,
-        zIndex: 9999, // Extremely High Z-Index to sit above EVERYTHING
-        cursor: "pointer",
+        background: `radial-gradient(circle at 30% 30%, ${activeColor}, #ff0044)`,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         fontSize: "2rem",
-        color: "#fff",
-        outline: "none",
-        transition: "box-shadow 0.4s ease",
+        cursor: "pointer",
+        zIndex: 99999, // أعلى من أي شيء
+        boxShadow: `0 0 35px ${activeColor}`,
+        userSelect: "none"
       }}
     >
-      {isLaunched ? "💨" : "🚀"}
-    </motion.button>
+      🚀
+    </motion.div>
   );
 }
 
-/* ================= WELCOME ALIEN ================= */
+
 function AlienGreeter() {
   const messages = ["Hello, welcome to my universe!", "I am E.Moaiad Alimam"];
   const [msgIndex, setMsgIndex] = useState(0);
@@ -449,7 +397,6 @@ function AlienGreeter() {
   );
 }
 
-/* ================= CAROUSEL ================= */
 function ProjectCarousel() {
   const items = [
     { title: "Dashboard UI", desc: "High-performance analytics dashboard." },
@@ -475,7 +422,6 @@ function ProjectCarousel() {
   );
 }
 
-/* ================= QUOTE ================= */
 function Quote() {
   const [i, setI] = useState(0);
   useEffect(() => {
@@ -502,11 +448,10 @@ function Quote() {
   );
 }
 
-/* ================= NEW SECTIONS ================= */
+/* ================= SECTIONS COMPONENTS ================= */
 
 function FooterAndDate() {
   const [date, setDate] = useState(new Date());
-
   useEffect(() => {
     const timer = setInterval(() => setDate(new Date()), 1000);
     return () => clearInterval(timer);
@@ -522,11 +467,8 @@ function FooterAndDate() {
           {date.toLocaleTimeString('en-US', { hour12: false })}
         </div>
       </div>
-
       <div style={styles.footer}>
-        <p style={{ margin: 0 }}>
-          © {date.getFullYear()} E.Moaiad Alimam. All Rights Reserved.
-        </p>
+        <p style={{ margin: 0 }}>© {date.getFullYear()} E.Moaiad Alimam. All Rights Reserved.</p>
       </div>
     </>
   );
@@ -574,7 +516,6 @@ function ServicesSection({ color }) {
         <h2 className="glitch-text" style={{ color: color, cursor: "default" }}>Services</h2>
         <p style={{ color: "#ccc" }}>Explore technological solutions I offer.</p>
       </div>
-
       <div style={styles.grid6}>
         {services.map((svc, idx) => (
           <NeonCard key={idx} delay={idx * 0.1} isFloat={true}>
@@ -602,21 +543,9 @@ function ServicesSection({ color }) {
 
 function TestimonialsSection({ color }) {
   const testimonials = [
-    {
-      name: "Alex Morgan",
-      role: "Product Manager",
-      text: "An outstanding developer who brings ideas to life with precision and creativity.",
-    },
-    {
-      name: "Sophia Lee",
-      role: "UI/UX Designer",
-      text: "The level of interaction and animation quality is simply next level.",
-    },
-    {
-      name: "Daniel Carter",
-      role: "Tech Founder",
-      text: "A rare combination of performance, design, and technical excellence.",
-    },
+    { name: "Alex Morgan", role: "Product Manager", text: "An outstanding developer who brings ideas to life." },
+    { name: "Sophia Lee", role: "UI/UX Designer", text: "Next level interaction and animation quality." },
+    { name: "Daniel Carter", role: "Tech Founder", text: "Rare combination of performance and design." },
   ];
 
   return (
@@ -625,7 +554,6 @@ function TestimonialsSection({ color }) {
         <h2 className="glitch-text" style={{ color: color, cursor: "default" }}>Testimonials</h2>
         <p style={{ color: "#ccc" }}>Voices from across the digital universe.</p>
       </div>
-
       <div style={styles.grid3}>
         {testimonials.map((t, i) => (
           <NeonCard key={i} delay={i * 0.2} isFloat={true}>
@@ -663,7 +591,6 @@ function CVSection({ color }) {
         <h2 className="glitch-text" style={{ color: color, cursor: "default" }}>Curriculum Vitae</h2>
         <p style={{ color: "#ccc" }}>An overview of my education and professional experience.</p>
       </div>
-
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
         {timelineData.map((item, i) => (
           <motion.div
@@ -689,12 +616,8 @@ function CVSection({ color }) {
               <span style={{ color: "#aaa", fontSize: "0.9rem" }}>{item.place}</span>
             </div>
             <div style={{
-              background: `${color}33`,
-              color: color,
-              padding: "5px 12px",
-              borderRadius: "8px",
-              fontWeight: "bold",
-              fontSize: "0.9rem"
+              background: `${color}33`, color: color, padding: "5px 12px",
+              borderRadius: "8px", fontWeight: "bold", fontSize: "0.9rem"
             }}>
               {item.year}
             </div>
@@ -712,14 +635,12 @@ function ContactSection({ color }) {
         <h2 className="glitch-text" style={{ color: color, cursor: "default" }}>Contact</h2>
         <p style={{ color: "#ccc" }}>Get in touch for collaboration.</p>
       </div>
-
       <div className="neon-border-box" style={{ padding: 0, display: "flex", flexWrap: "wrap", overflow: "hidden", position: "relative", marginBottom: "80px" }}>
         <div style={{
           position: "absolute", top: 0, left: 0, width: "100%", height: "100%",
           background: `radial-gradient(circle at 50% 50%, ${color}11, transparent 70%)`,
           zIndex: 0, pointerEvents: "none"
         }}></div>
-
         <div style={{ flex: 1, minWidth: "280px", padding: "30px", background: "rgba(0,0,0,0.3)", zIndex: 1 }}>
           <h3 style={{ color: "#fff", marginBottom: "25px" }}>Contact Info</h3>
           {[
@@ -728,8 +649,7 @@ function ContactSection({ color }) {
             { icon: "📞", title: "Call", text: "+1 5589 55488 55" }
           ].map((item, idx) => (
             <motion.div
-              key={idx}
-              whileHover={{ x: 10 }}
+              key={idx} whileHover={{ x: 10 }}
               style={{ marginBottom: "20px", display: "flex", alignItems: "center", gap: "12px" }}
             >
               <div style={{ width: 35, height: 35, borderRadius: "50%", background: `${color}33`, display: "flex", alignItems: "center", justifyContent: "center", color: color }}>{item.icon}</div>
@@ -740,7 +660,6 @@ function ContactSection({ color }) {
             </motion.div>
           ))}
         </div>
-
         <div style={{ flex: 1.5, minWidth: "300px", padding: "30px", background: "rgba(255,255,255,0.02)", zIndex: 1 }}>
           <form style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
             <div style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}>
@@ -781,36 +700,34 @@ export default function App() {
 
   // Scroll Spy Logic
   useEffect(() => {
-    const handleScroll = () => {
-      let current = "main";
-      if (typeof document === 'undefined') return;
+    const onScroll = () => {
+      const middle = window.innerHeight / 2;
+      let currentSection = "main";
 
-      for (const section of SECTIONS) {
-        const element = document.getElementById(section.id);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          // Check if section is roughly in middle of viewport
-          if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
-            current = section.id;
-            break;
-          }
+      for (const s of SECTIONS) {
+        const el = document.getElementById(s.id);
+        if (!el) continue;
+
+        const rect = el.getBoundingClientRect();
+
+        if (rect.top <= middle && rect.bottom >= middle) {
+          currentSection = s.id;
+          break;
         }
       }
-      setActive(current);
 
-      // Sync star color with active section
-      const activeSec = SECTIONS.find(s => s.id === current);
-      if (activeSec) {
-        setStarColor(activeSec.color);
+      if (currentSection !== active) {
+        setActive(currentSection);
+        const sec = SECTIONS.find(s => s.id === currentSection);
+        if (sec) setStarColor(sec.color);
       }
     };
 
-    if (typeof window !== 'undefined') {
-      window.addEventListener("scroll", handleScroll);
-      handleScroll();
-      return () => window.removeEventListener("scroll", handleScroll);
-    }
-  }, []);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [active]);
 
   return (
     <div style={styles.page}>
@@ -889,7 +806,6 @@ export default function App() {
   );
 }
 
-/* ================= STYLES ================= */
 const styles = {
   page: {
     minHeight: "100vh",
@@ -945,7 +861,7 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     gap: 12,
-    zIndex: 10,
+    zIndex: 100, // Increased to ensure clicks work
   },
   menuItem: {
     padding: "10px 18px",
@@ -960,6 +876,7 @@ const styles = {
     gap: 8,
     boxShadow: "0 4px 15px rgba(0,0,0,0.5)",
     whiteSpace: "nowrap",
+    transition: "all 0.3s ease"
   },
   alienWrap: {
     position: "fixed",
